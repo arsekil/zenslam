@@ -1,0 +1,28 @@
+{
+  "name": "zenslam",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.2",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.1"
+  },
+  "dependencies": {
+    "@fastify/jwt": "^10.2.2",
+    "@fastify/mongodb": "^10.0.1",
+    "@mdi/js": "^7.4.47",
+    "date-fns": "^4.4.0",
+    "dompurify": "^3.4.15",
+    "fastify": "^5.12.4",
+    "firebase": "^12.19.0",
+    "mongodb": "7.6",
+    "pino": "^10.3.1",
+    "zod": "^4.6.5"
+  }
+}
