@@ -4,10 +4,22 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>r/zenslam</title>
+    <script src="https://www.google.com/recaptcha/enterprise.js?render=6LfBPL4tAAAAAFp5hbEcTGQGdglcZKx0uCOlDBfj"></script>
+    <title>r/zen slam poetry</title>
   </head>
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
+    <script>
+      function onClick(e) {
+        e.preventDefault();
+        grecaptcha.enterprise.ready(async () => {
+          const token = await grecaptcha.enterprise.execute(
+            "6LfBPL4tAAAAAFp5hbEcTGQGdglcZKx0uCOlDBfj",
+            { action: "LOGIN" },
+          );
+        });
+      }
+    </script>
   </body>
 </html>

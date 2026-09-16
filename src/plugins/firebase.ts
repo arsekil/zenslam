@@ -1,24 +1,30 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-//import { getAnalytics } from "firebase/analytics";
+import {
+  initializeAppCheck,
+  ReCaptchaEnterpriseProvider,
+} from "firebase/app-check";
+import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyBy2rbqdUFyBKtndxPlfb-twbsa3LaqzDo",
-  authDomain: "zenslam-bd781.firebaseapp.com",
-  projectId: "zenslam-bd781",
-  storageBucket: "zenslam-bd781.firebasestorage.app",
-  messagingSenderId: "653935955079",
-  appId: "1:653935955079:web:72be271b28592694d2fc22",
-  measurementId: "G-LLCEVK8M8K",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
-//const analytics = getAnalytics(app);
+export const analytics = getAnalytics(app);
 export const auth = getAuth(app);
+export const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaEnterpriseProvider(import.meta.env.VITE_RECAPTCHA_KEY_ID),
+  isTokenAutoRefreshEnabled: true,
+});
