@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://www.google.com/recaptcha/enterprise.js?render=6LfBPL4tAAAAAFp5hbEcTGQGdglcZKx0uCOlDBfj"></script>
+    <script src="https://www.google.com/recaptcha/enterprise.js?render=${import.meta.env.VITE_RECAPTCHA_KEY_ID}"></script>
     <title>r/zen slam poetry</title>
   </head>
   <body>
@@ -15,7 +15,7 @@
         e.preventDefault();
         grecaptcha.enterprise.ready(async () => {
           const token = await grecaptcha.enterprise.execute(
-            "6LfBPL4tAAAAAFp5hbEcTGQGdglcZKx0uCOlDBfj",
+            `${import.meta.env.VITE_RECAPTCHA_KEY_ID}`,
             { action: "LOGIN" },
           );
         });
