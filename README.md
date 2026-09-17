@@ -1,5 +1,7 @@
 # r/zen subreddit's slam poetry website
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/effd1a1d-d20f-4e87-a835-d068f29b8f86/deploy-status)](https://app.netlify.com/projects/zenslam/deploys)
+
 ## tech stack
 
 1. Vite
