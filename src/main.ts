@@ -11,6 +11,7 @@ import "./style.css";
 import { auth, db } from "./lib/firebase";
 
 let mode: "login" | "signup" = "login";
+let isSigningUp: boolean = false;
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 <section class="w-full h-screen flex flex-col gap-5 justify-center items-center">
@@ -61,6 +62,7 @@ async function handleSubmit(e: SubmitEvent) {
 
   try {
     if (mode === "signup") {
+      isSigningUp = true;
       const usernameInput =
         document.querySelector<HTMLInputElement>("#username")!;
       // const status = await validatePassword(auth, password);
@@ -85,10 +87,13 @@ async function handleSubmit(e: SubmitEvent) {
         email: userCredential.user.email,
         createdAt: new Date(),
       });
+      isSigningUp = false;
+      window.location.href = "/account/";
     } else {
       await signInWithEmailAndPassword(auth, email, password);
     }
   } catch (error: any) {
+    isSigningUp = false;
     if (error instanceof FirebaseError) {
       console.error(error.code, error.message);
     }
@@ -96,7 +101,7 @@ async function handleSubmit(e: SubmitEvent) {
 }
 
 onAuthStateChanged(auth, (user) => {
-  if (user) {
+  if (user && !isSigningUp) {
     window.location.href = "/account/";
   }
 });
