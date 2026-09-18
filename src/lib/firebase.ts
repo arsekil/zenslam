@@ -30,7 +30,8 @@ if (import.meta.env.VITE_USE_EMULATORS === "true") {
   connectAuthEmulator(auth, "http://localhost:9099", { disableWarnings: false });
   connectFirestoreEmulator(db, "localhost", 8080);
 }
-export const appCheck = initializeAppCheck(app, {
-  provider: new ReCaptchaEnterpriseProvider(import.meta.env.VITE_RECAPTCHA_KEY_ID),
-  isTokenAutoRefreshEnabled: true,
-});
+//TODO: Add reCAPTCHA Enterprise integration later
+// export const appCheck = initializeAppCheck(app, {
+//   provider: new ReCaptchaEnterpriseProvider(import.meta.env.VITE_RECAPTCHA_KEY_ID),
+//   isTokenAutoRefreshEnabled: true,
+// });

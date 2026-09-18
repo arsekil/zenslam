@@ -103,6 +103,7 @@ onAuthStateChanged(auth, (user) => {
 
 renderForm();
 
-const script = document.createElement("script");
-script.src = `https://www.google.com/recaptcha/enterprise.js?render=${import.meta.env.VITE_RECAPTCHA_KEY_ID}`;
-document.head.appendChild(script);
+//TODO: Add reCAPTCHA Enterprise integration later
+// const script = document.createElement("script");
+// script.src = `https://www.google.com/recaptcha/enterprise.js?render=${import.meta.env.VITE_RECAPTCHA_KEY_ID}`;
+// document.head.appendChild(script);
