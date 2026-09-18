@@ -1,11 +1,21 @@
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  updateProfile,
+  // validatePassword,
+} from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { FirebaseError } from "firebase/app";
 import "./style.css";
+import { auth, db } from "./lib/firebase";
 
 let mode: "login" | "signup" = "login";
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 <section class="w-full h-screen flex flex-col gap-5 justify-center items-center">
   <h1 class="text-4xl font-bold text-orange-500">r/zen slam poetry</h1>
-  <form id="form" action="#" class="flex flex-col gap-3 w-1/4"></form>
+  <form id="form" class="flex flex-col gap-3 w-1/4"></form>
 </section>
 `;
 
@@ -31,6 +41,10 @@ function renderForm() {
   `;
 
   document
+    .querySelector<HTMLFormElement>("#form")!
+    .addEventListener("submit", handleSubmit);
+
+  document
     .querySelector<HTMLSpanElement>("#authSwitch")!
     .addEventListener("click", (e) => {
       e.preventDefault();
@@ -38,6 +52,54 @@ function renderForm() {
       renderForm();
     });
 }
+
+async function handleSubmit(e: SubmitEvent) {
+  e.preventDefault();
+
+  const email = document.querySelector<HTMLInputElement>("#email")!.value;
+  const password = document.querySelector<HTMLInputElement>("#password")!.value;
+
+  try {
+    if (mode === "signup") {
+      const usernameInput =
+        document.querySelector<HTMLInputElement>("#username")!;
+      // const status = await validatePassword(auth, password);
+      // if (!status.isValid) {
+      //   const needsLowerCase = status.containsLowercaseLetter !== true;
+      //   const needsUpperCase = status.containsUppercaseLetter !== true;
+      //   const needsNumber = status.containsNumericCharacter !== true;
+      //   const needsSpecialChar = status.containsNonAlphanumericCharacter !== true;
+      //   const needsMinLength = status.meetsMinPasswordLength !== true;
+      //   //TODO: Display these errors to the user in a user-friendly way
+      // }
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+      await updateProfile(auth?.currentUser!, {
+        displayName: usernameInput.value,
+      });
+      await setDoc(doc(db, "users", userCredential.user.uid), {
+        displayName: usernameInput.value,
+        email: userCredential.user.email,
+        createdAt: new Date(),
+      });
+    } else {
+      await signInWithEmailAndPassword(auth, email, password);
+    }
+  } catch (error: any) {
+    if (error instanceof FirebaseError) {
+      console.error(error.code, error.message);
+    }
+  }
+}
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    window.location.href = "/account/";
+  }
+});
 
 renderForm();
 
