@@ -26,8 +26,10 @@ export const app = initializeApp(firebaseConfig);
 export const analytics = getAnalytics(app);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-connectAuthEmulator(auth, "http://localhost:9099", { disableWarnings: false });
-connectFirestoreEmulator(db, "localhost", 8080);
+if (import.meta.env.VITE_USE_EMULATORS === "true") {
+  connectAuthEmulator(auth, "http://localhost:9099", { disableWarnings: false });
+  connectFirestoreEmulator(db, "localhost", 8080);
+}
 export const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaEnterpriseProvider(import.meta.env.VITE_RECAPTCHA_KEY_ID),
   isTokenAutoRefreshEnabled: true,
