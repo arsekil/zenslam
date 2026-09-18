@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "emulator": "firebase emulators:start --project zenslam"
   },
   "devDependencies": {
     "typescript": "~6.0.2",
