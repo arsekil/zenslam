@@ -4,7 +4,7 @@ import { initializeApp } from "firebase/app";
 //   ReCaptchaEnterpriseProvider,
 // } from "firebase/app-check";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth, connectAuthEmulator, debugErrorMap } from "firebase/auth";
+import { getAuth, connectAuthEmulator } from "firebase/auth";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 
 // TODO: Add SDKs for Firebase products that you want to use
