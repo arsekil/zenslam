@@ -1,6 +1,7 @@
+import { html } from "../lib/html";
 import '../style.css';
 
-document.querySelector<HTMLDivElement>("#poem")!.innerHTML = `
+document.querySelector<HTMLDivElement>("#poem")!.innerHTML = html`
 <p class="text-3xl font-bold">Ode to the Night</p>
 
 <p>In the quiet of the night,</p>
