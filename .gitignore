@@ -16,6 +16,8 @@ dist-ssr
 .env.*
 .env*
 
+
+application_default_credentials.json
 .firebaserc
 emulator-data
 *-service-account*.json

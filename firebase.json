@@ -38,7 +38,7 @@
     },
     "singleProjectMode": true,
     "pubsub": {
-      "port": 8085
+      "port": 8095
     }
   },
   "auth": {

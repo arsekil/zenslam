@@ -3,7 +3,7 @@ import { initializeApp } from "firebase/app";
 //   initializeAppCheck,
 //   ReCaptchaEnterpriseProvider,
 // } from "firebase/app-check";
-import { getAnalytics } from "firebase/analytics";
+//import { getAnalytics } from "firebase/analytics";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 
@@ -22,7 +22,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
-export const analytics = getAnalytics(app);
+//export const analytics = getAnalytics(app);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 if (import.meta.env.VITE_USE_EMULATORS === "true") {
