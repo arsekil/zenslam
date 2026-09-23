@@ -24,7 +24,7 @@ document.querySelector<HTMLDivElement>("#submission")!.innerHTML = html`
 function renderShell() {
   document.querySelector<HTMLDivElement>("#submission")!.innerHTML = html`
     <section
-      class="w-full min-h-screen flex flex-col gap-5 justify-center items-center"
+      class="w-full h-212.5 flex flex-col gap-5 justify-center items-center"
     >
       <h1 class="text-3xl font-bold text-zinc-700">Submit a Zen</h1>
       <div

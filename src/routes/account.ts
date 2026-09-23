@@ -2,12 +2,15 @@ import { FirebaseError } from "firebase/app";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { html } from "../lib/html";
+import "../style.css";
 
 let displayName: string | null = null;
 
-function renderAccount(displayName: string | null) {
+function renderAccount() {
   document.querySelector<HTMLDivElement>("#account")!.innerHTML = html`
-  <button id="logout">Logout</button>
+    <section class="">
+      <button id="logout">Logout</button>
+    </section>
   `;
 
   document
@@ -29,6 +32,6 @@ onAuthStateChanged(auth, (user) => {
     window.location.href = "/";
   } else {
     displayName = user.displayName;
-    renderAccount(displayName);
+    renderAccount();
   }
 });

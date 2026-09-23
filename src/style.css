@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+@theme {
+  --color-graphite: #363635;
+  --color-charcoal-blue: #465362ff;
+  --color-pumpkin-spice: #f17105ff;
+  --color-prussian-blue: #011936ff;
+  --color-intense-cherry: #d11149ff;
+}

@@ -1,6 +1,10 @@
 import { html } from "../lib/html";
-import '../style.css';
+import "../style.css";
 
-document.querySelector<HTMLDivElement>('#collection')!.innerHTML = html`
-this is the collection page. It will contain a list of all the poems that have been submitted to the site. Each poem will be displayed as a link to the individual poem page.
+document.querySelector<HTMLDivElement>("#collection")!.innerHTML = html`
+  <section
+    class="w-full min-h-screen flex flex-col gap-5 justify-center items-center"
+  >
+    <p class="text-zinc-800">Loading...</p>
+  </section>
 `;
