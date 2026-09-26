@@ -8,7 +8,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest",
-    "emulators": "firebase emulators:start --import=./emulator-data --export-on-exit=./emulator-data"
+    "emulators": "firebase emulators:start --only 'auth','firestore' --import=./emulator-data --export-on-exit=./emulator-data"
   },
   "devDependencies": {
     "@vitest/browser-playwright": "^5.0.1",
