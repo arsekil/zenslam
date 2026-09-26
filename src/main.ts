@@ -8,8 +8,9 @@ import {
 } from "@mdi/js";
 import { FirebaseError } from "firebase/app";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { collection, query, doc, getDoc,getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { auth, db } from "./lib/firebase";
+import { type PoemDocument } from "../src/types/PoemDocument";
 import firebaseLogo from "./assets/Logomark_Full_Color.png";
 import tsLogo from "./assets/typescript.svg";
 import viteLogo from "./assets/vite_logo.jpeg";
@@ -158,37 +159,72 @@ function renderLogout() {
     });
 }
 
+//TODO
+function poemRatings(poem: Pick<PoemDocument, "avgRating" | "ratingCount">) {
+  const { avgRating, ratingCount } = poem;
+
+  if (ratingCount === 0) {
+    return { display: "No ratings yet" };
+  }
+
+  return {
+    display: `${avgRating.toFixed(1)} * (${ratingCount})}`,
+    avgRating,
+    ratingCount,
+  };
+}
+
 function formatDate(date: Date | null) {
   if (!date) return "Just now";
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const year = date.getFullYear();
-  return `${day}-${month}-${year}`;
+  return `${year}-${month}-${day}`;
 }
 
 async function renderFeed() {
   try {
-    const feedQuery = query(collection(db, "poems"));
+    const feedQuery = query(
+      collection(db, "poems"),
+      where("isPublic", "==", true),
+    );
     const feedQuerySnapshot = await getDocs(feedQuery);
 
     const poemsHTML = feedQuerySnapshot.docs
       .map((entry) => {
-        const poem = entry.data();
-        return html`
-          <article
-            class="w-full flex flex-row justify-between items-center border rounded-md p-4"
-          >
-            <h3 class="font-semibold">${poem.title}</h3>
-            <p>posted by ${poem.displayName}</p>
-            <p>${formatDate(poem.createdAt.toDate())}</p>
-          </article>
-        `;
+        const poem = entry.data() as PoemDocument;
+        const ratings = poemRatings(poem);
+        if (poem.isPublic === true) {
+          return html`
+            <section
+              class="w-full flex flex-row justify-between border rounded-md p-4"
+            >
+              <article class="max-w-20">
+                <h3 class="font-semibold">${poem.title}</h3>
+              </article>
+              <article>${String(ratings.display)}</article>
+              <section class="flex flex-row gap-1">
+                <article class="">
+                  <p>
+                    posted by
+                    <span class="no-underline text-blue-500 cursor-pointer"
+                      >${poem.displayName}</span
+                    >
+                  </p>
+                </article>
+                <article class="">
+                  <p>on ${formatDate(poem.createdAt.toDate())}</p>
+                </article>
+              </section>
+            </section>
+          `;
+        }
       })
       .join("");
 
     document.querySelector<HTMLDivElement>("#poem-feed")!.innerHTML = html`
       <section class="flex flex-col gap-4 justify-center items-center">
-        ${poemsHTML.length > 0 ? poemsHTML : "No poems yet."}
+        ${poemsHTML.length > 0 ? poemsHTML : "No public poems yet."}
       </section>
     `;
   } catch (error) {

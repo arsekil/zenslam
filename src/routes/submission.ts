@@ -1,6 +1,6 @@
 import { onAuthStateChanged } from "firebase/auth";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { FirebaseError } from "firebase/app";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { z } from "zod";
 import { mdiArrowLeft } from "@mdi/js";
 import { auth, db } from "../lib/firebase";
@@ -11,7 +11,6 @@ import "../style.css";
 let isError = false;
 let errorType: "zodError" | "FBError" | "" = "";
 let errorMessage: string | z.ZodIssue[] = "";
-let displayName: string | null = null;
 
 document.querySelector<HTMLDivElement>("#submission")!.innerHTML = html`
   <section
@@ -70,17 +69,18 @@ function renderForm() {
     <label class="inline-flex justify-center items-center cursor-pointer gap-3">
       <span class="text-lg font-semibold">Private</span>
       <input type="checkbox" id="public" name="public" class="sr-only peer" />
-      <div class="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600
+      <div
+        class="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600
               after:content-[''] after:absolute after:top-0.5 after:left-0.5
               after:bg-white after:rounded-full after:h-5 after:w-5
               after:transition-all peer-checked:after:translate-x-5
-              relative transition-colors"></div>
+              relative transition-colors"
+      ></div>
       <span class="text-lg font-semibold">Public</span>
     </label>
-    </div>
     <button
       type="submit"
-      class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors"
+      class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors cursor-pointer"
     >
       Submit
     </button>
@@ -139,23 +139,26 @@ async function handleSubmit(e: SubmitEvent) {
     .filter((tag) => tag.length > 0);
 
   try {
-    const validated = PoemSchema.parse({ title, body, tags, isPublic });
-
+    const validated = await PoemSchema.parseAsync({
+      title,
+      body,
+      tags,
+      isPublic,
+    });
     await addDoc(collection(db, "poems"), {
       ...validated,
-      displayName: displayName,
+      displayName: auth.currentUser?.displayName,
+      authorUid: auth.currentUser?.uid,
       avgRating: 0,
       ratingCount: 0,
       createdAt: serverTimestamp(),
     });
-
-    isError = false;
-    // window.location.href = "/account/";
+    window.location.href = "/account/";
   } catch (error: any) {
     if (error instanceof FirebaseError) {
       isError = true;
       errorType = "FBError";
-      errorMessage = "Something went wrong saving your poem. Please try again.";
+      errorMessage = error as unknown as string; //"Something went wrong saving your poem. Please try again.";
     } else if (error instanceof z.ZodError) {
       isError = true;
       errorType = "zodError";
@@ -169,7 +172,6 @@ onAuthStateChanged(auth, (user) => {
   if (!user) {
     window.location.href = "/";
   } else {
-    displayName = user.displayName;
     renderShell();
   }
 });
