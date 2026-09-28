@@ -3,27 +3,32 @@ import { auth } from "../lib/firebase";
 import { html } from "../lib/html";
 import "../style.css";
 
+const menuItems = [
+  { href: "/", label: "Home", color: "bg-graphite" },
+  { href: "/poems/", label: "Poems", color: "bg-charcoal-blue" },
+  { href: "/collection/", label: "Collection", color: "bg-pumpkin-spice" },
+  { href: "/submission/", label: "Submission", color: "bg-prussian-blue" },
+  { href: "/account/", label: "Account", color: "bg-intense-cherry" },
+];
+
 function renderMenu() {
   document.querySelector<HTMLDivElement>("#menu")!.innerHTML = html`
-    <section class="w-full h-14.5 flex flex-col gap-5 justify-center items-center">
-      <menu class="w-full h-14.5 flex flex-row justify-center items-center">
-        <li class="list-none py-4 px-6 border border-graphite bg-graphite text-white font-semibold rounded-sm cursor-pointer hover:rounded-lg hover:scale-125">
-          <a href="/" class="no-underline">Home</a>
-        </li>
-        <li class="list-none py-4 px-6 border border-charcoal-blue bg-charcoal-blue text-white font-semibold rounded-sm cursor-pointer hover:rounded-lg hover:scale-125">
-          <a href="/poems/" class="no-underline">Poems</a>
-        </li>
-        <li class="list-none py-4 px-6 border border-pumpkin-spice bg-pumpkin-spice text-white font-semibold rounded-sm cursor-pointer hover:rounded-lg hover:scale-125">
-          <a href="/collection/" class="no-underline">Collection</a>
-        </li>
-        <li class="list-none py-4 px-6 border border-prussian-blue bg-prussian-blue text-white font-semibold rounded-sm cursor-pointer hover:rounded-lg hover:scale-125">
-          <a href="/submission/" class="no-underline">Submission</a>
-        </li>
-        <li class="list-none py-4 px-6 border border-intense-cherry bg-intense-cherry text-white font-semibold rounded-sm cursor-pointer hover:rounded-lg hover:scale-125">
-          <a href="/account/" class="no-underline">Account</a>
-        </li>
+    <nav class="w-full p-2">
+      <menu class="flex flex-row flex-wrap justify-center gap-2">
+        ${menuItems.map(
+          (item) => html`
+            <li class="list-none">
+              <a
+                href="${item.href}"
+                class="block py-2 px-3 md:py-4 md:px-6 ${item.color} text-white font-semibold rounded-sm hover:rounded-lg hover:scale-105 transition-transform no-underline"
+              >
+                ${item.label}
+              </a>
+            </li>
+          `
+        ).join("")}
       </menu>
-    </section>
+    </nav>
   `;
 }
 
