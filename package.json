@@ -17,6 +17,14 @@
     "vitest": "^5.0.1"
   },
   "dependencies": {
+    "@dicebear/core": "^10.7.0",
+    "@dicebear/styles": "^10.6.0",
+    "@editorjs/delimiter": "^1.4.2",
+    "@editorjs/editorjs": "^2.31.7",
+    "@editorjs/header": "^2.8.9",
+    "@editorjs/list": "^2.0.9",
+    "@editorjs/quote": "^2.7.6",
+    "@editorjs/underline": "^1.2.1",
     "@google-cloud/recaptcha-enterprise": "^7.2.0",
     "@mdi/js": "^7.4.47",
     "@tailwindcss/typography": "^0.5.20",
@@ -28,5 +36,9 @@
     "pino": "^10.3.1",
     "tailwindcss": "^4.3.3",
     "zod": "^4.6.5"
+  },
+  "allowScripts": {
+    "@firebase/util@1.15.3": true,
+    "protobufjs@7.6.6": true
   }
 }
