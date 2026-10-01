@@ -7,9 +7,16 @@ import {
   mdiYinYang,
 } from "@mdi/js";
 import { FirebaseError } from "firebase/app";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { onAuthStateChanged, signOut, type User } from "firebase/auth";
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+} from "firebase/firestore";
 import { auth, db } from "./lib/firebase";
+import formatDate from "./lib/formatDate";
 import { type PoemDocument } from "../src/types/PoemDocument";
 import firebaseLogo from "./assets/Logomark_Full_Color.png";
 import tsLogo from "./assets/typescript.svg";
@@ -38,7 +45,7 @@ function renderShell() {
         <svg viewBox="0 0 28 28" width="28" height="28">
           <path d="${mdiYinYang}" />
         </svg>
-        <h1 class="text-4xl font-bold text-zinc-700">r/zen slam poetry</h1>
+        <h1 class="text-xl font-bold text-zinc-700">r/zen slam poetry</h1>
         <svg viewBox="0 0 28 28" width="28" height="28">
           <path d="${mdiFeather}" />
         </svg>
@@ -97,10 +104,12 @@ function renderShell() {
 
 function renderCTA() {
   document.querySelector<HTMLDivElement>("#cta")!.innerHTML = html`
-    <article class="flex flex-row items-center justify-center gap-6">
+    <article
+      class="flex flex-col sm:2xl:flex-row items-center justify-center gap-6"
+    >
       <a
         href="/auth/cta/?mode=login"
-        class="py-6 px-8 bg-pink-200 rounded-full cursor-pointer flex flex-row justify-center intems-center gap-2"
+        class="py-6 px-8 bg-pink-200 rounded-full cursor-pointer flex flex-row justify-center items-center gap-2"
       >
         <svg viewBox="0 0 28 28" width="28" height="28">
           <path d="${mdiLogin}" fill="black" />
@@ -109,7 +118,7 @@ function renderCTA() {
       </a>
       <a
         href="/auth/cta/?mode=signup"
-        class="py-6 px-8 text-white bg-blue-600 rounded-full cursor-pointer flex flex-row justify-center intems-center gap-2"
+        class="py-6 px-8 text-white bg-blue-600 rounded-full cursor-pointer flex flex-row justify-center items-center gap-2"
       >
         <svg viewBox="0 0 28 28" width="28" height="28">
           <path d="${mdiAccountPlusOutline}" fill="black" />
@@ -120,12 +129,14 @@ function renderCTA() {
   `;
 }
 
-function renderLogout() {
+function renderLogout(user: User) {
   document.querySelector<HTMLButtonElement>("#signout")!.innerHTML = html`
-    <article class="flex flex-row items-center justify-center gap-6">
+    <article
+      class="flex flex-col sm:2xl:flex-row items-center justify-center gap-6"
+    >
       <a
-        href="/account/"
-        class="py-6 px-8 bg-cyan-600 rounded-full cursor-pointer flex flex-row justify-center intems-center gap-2"
+        href="/account/?uid=${user.uid}"
+        class="py-6 px-8 bg-cyan-600 rounded-full cursor-pointer flex flex-row justify-center items-center gap-2"
       >
         <svg viewBox="0 0 28 28" width="28" height="28">
           <path d="${mdiAccountCircleOutline}" fill="black" />
@@ -135,7 +146,7 @@ function renderLogout() {
       <button
         type="button"
         id="logout"
-        class="py-6 px-8 bg-orange-500 rounded-full cursor-pointer flex flex-row justify-center intems-center gap-2"
+        class="py-6 px-8 bg-orange-500 rounded-full cursor-pointer flex flex-row justify-center items-center gap-2"
       >
         <svg viewBox="0 0 28 28" width="28" height="28">
           <path d="${mdiLogout}" fill="black" />
@@ -168,18 +179,10 @@ function poemRatings(poem: Pick<PoemDocument, "avgRating" | "ratingCount">) {
   }
 
   return {
-    display: `${avgRating.toFixed(1)} * (${ratingCount})}`,
+    display: `${avgRating.toFixed(1)} * (${ratingCount})`,
     avgRating,
     ratingCount,
   };
-}
-
-function formatDate(date: Date | null) {
-  if (!date) return "Just now";
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  return `${year}-${month}-${day}`;
 }
 
 async function renderFeed() {
@@ -187,47 +190,59 @@ async function renderFeed() {
     const feedQuery = query(
       collection(db, "poems"),
       where("isPublic", "==", true),
+      orderBy("createdAt", "desc"),
     );
-    const feedQuerySnapshot = await getDocs(feedQuery);
 
-    const poemsHTML = feedQuerySnapshot.docs
-      .map((entry) => {
-        const poem = entry.data() as PoemDocument;
-        const ratings = poemRatings(poem);
-        if (poem.isPublic === true) {
-          return html`
-            <section
-              class="w-full flex flex-row justify-between border rounded-md p-4"
-            >
-              <article class="max-w-20">
-                <h3 class="font-semibold">${poem.title}</h3>
-              </article>
-              <article>${String(ratings.display)}</article>
-              <section class="flex flex-row gap-1">
-                <article class="">
-                  <p>
-                    posted by
-                    <span class="no-underline text-blue-500 cursor-pointer"
-                      >${poem.displayName}</span
-                    >
-                  </p>
+    const unsubscribe = onSnapshot(
+      feedQuery,
+      (snapshot) => {
+        const poemsHTML = snapshot.docs
+          .map((entry) => {
+            const poem = entry.data() as PoemDocument;
+            const ratings = poemRatings(poem);
+            const createdAt = poem.createdAt;
+            return html`
+              <section
+                class="w-full flex flex-col sm:3xl:flex-row justify-between items-center border rounded-md p-4 gap-3 sm:2xl:gap-0"
+              >
+                <article class="w-full flex justify-center items-center">
+                  <h3 class="font-semibold">${poem.title}</h3>
                 </article>
-                <article class="">
-                  <p>on ${formatDate(poem.createdAt.toDate())}</p>
+                <article class="w-full max-w-35 flex flex-row justify-center">
+                  ${String(ratings.display)}
                 </article>
+                <section class="w-full flex flex-row justify-end gap-1">
+                  <article class="max-w-50">
+                    <p class="max-w-50">
+                      posted by
+                      <span class="no-underline text-blue-800 cursor-pointer">
+                        ${poem.displayName ?? "Unknown"}
+                      </span>
+                    </p>
+                  </article>
+                  <article class="max-w-50">
+                    <p>on ${formatDate(createdAt)}</p>
+                  </article>
+                </section>
               </section>
-            </section>
-          `;
-        }
-      })
-      .join("");
+            `;
+          })
+          .join("");
 
-    document.querySelector<HTMLDivElement>("#poem-feed")!.innerHTML = html`
-      <section class="flex flex-col gap-4 justify-center items-center">
-        ${poemsHTML.length > 0 ? poemsHTML : "No public poems yet."}
-      </section>
-    `;
+        document.querySelector<HTMLDivElement>("#poem-feed")!.innerHTML = html`
+          <section class="flex flex-col gap-4 justify-center items-center">
+            ${poemsHTML || "No poems yet."}
+          </section>
+        `;
+      },
+      (error) => {
+        console.error("Feed snapshot error:", error);
+      },
+    );
+
+    return unsubscribe;
   } catch (error) {
+    //TODO
     console.error(error);
   }
 }
@@ -237,7 +252,7 @@ renderShell();
 onAuthStateChanged(auth, (user) => {
   if (user) {
     renderShell();
-    renderLogout();
+    renderLogout(user);
     renderFeed();
   } else {
     renderShell();

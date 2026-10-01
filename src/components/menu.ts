@@ -13,20 +13,35 @@ const menuItems = [
 
 function renderMenu() {
   document.querySelector<HTMLDivElement>("#menu")!.innerHTML = html`
-    <nav class="w-full p-2">
-      <menu class="flex flex-row flex-wrap justify-center gap-2">
-        ${menuItems.map(
-          (item) => html`
-            <li class="list-none">
-              <a
-                href="${item.href}"
-                class="block py-2 px-3 md:py-4 md:px-6 ${item.color} text-white font-semibold rounded-sm hover:rounded-lg hover:scale-105 transition-transform no-underline"
-              >
-                ${item.label}
-              </a>
-            </li>
-          `
-        ).join("")}
+    <nav class="w-full max-w-2xl mx-auto p-2">
+      <menu class="flex flex-row flex-wrap justify-center gap-4">
+        ${menuItems
+          .map((item) => {
+            if (item.href === "/account/") {
+              return html`
+                <li class="list-none">
+                  <a
+                    href="${item.href}?uid=${auth.currentUser?.uid}"
+                    class="block py-2 px-3 md:py-4 md:px-6 ${item.color} text-white font-semibold rounded-sm hover:rounded-lg hover:scale-105 transition-transform no-underline"
+                  >
+                    ${item.label}
+                  </a>
+                </li>
+              `;
+            } else {
+              return html`
+                <li class="list-none">
+                  <a
+                    href="${item.href}"
+                    class="block py-2 px-3 md:py-4 md:px-6 ${item.color} text-white font-semibold rounded-sm hover:rounded-lg hover:scale-105 transition-transform no-underline"
+                  >
+                    ${item.label}
+                  </a>
+                </li>
+              `;
+            }
+          })
+          .join("")}
       </menu>
     </nav>
   `;

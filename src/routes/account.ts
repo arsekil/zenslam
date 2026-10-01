@@ -1,37 +1,27 @@
-import { FirebaseError } from "firebase/app";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import renderAccount from "../components/account/renderAccount";
+import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { html } from "../lib/html";
 import "../style.css";
 
-let displayName: string | null = null;
+const params = new URLSearchParams(window.location.search);
+const viewedUid = params.get("uid");
 
-function renderAccount() {
-  document.querySelector<HTMLDivElement>("#account")!.innerHTML = html`
-    <section class="">
-      <button id="logout">Logout</button>
-    </section>
-  `;
 
-  document
-    .querySelector<HTMLButtonElement>("#logout")!
-    .addEventListener("click", async () => {
-      try {
-        await signOut(auth);
-        window.location.href = "/";
-      } catch (error) {
-        if (error instanceof FirebaseError) {
-          console.error("Error signing out:", error);
-        }
-      }
-    });
-}
+document.querySelector<HTMLDivElement>("#account")!.innerHTML = html`
+  <section
+    class="w-full min-h-screen flex flex-col gap-5 justify-center items-center"
+  >
+    <p class="text-zinc-800">Loading...</p>
+  </section>
+`;
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "/";
-  } else {
-    displayName = user.displayName;
-    renderAccount();
+    return;
   }
+  const profileUid = viewedUid ?? user.uid;
+  const isOwnProfile = profileUid === user.uid;
+  await renderAccount(user, profileUid, isOwnProfile);
 });

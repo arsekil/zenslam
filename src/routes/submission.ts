@@ -1,9 +1,14 @@
 import { onAuthStateChanged } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { auth, db } from "../lib/firebase";
 import { z } from "zod";
 import { mdiArrowLeft } from "@mdi/js";
-import { auth, db } from "../lib/firebase";
+import EditorJS from "@editorjs/editorjs";
+import Header from "@editorjs/header";
+import List from "@editorjs/list";
+import Delimiter from "@editorjs/delimiter";
+import Underline from "@editorjs/underline";
 import { PoemSchema } from "../schemas/poem";
 import { html } from "../lib/html";
 import "../style.css";
@@ -11,6 +16,9 @@ import "../style.css";
 let isError = false;
 let errorType: "zodError" | "FBError" | "" = "";
 let errorMessage: string | z.ZodIssue[] = "";
+let editor: EditorJS;
+let tags: string[] = [];
+const MAX_TAGS = 5;
 
 document.querySelector<HTMLDivElement>("#submission")!.innerHTML = html`
   <section
@@ -23,14 +31,17 @@ document.querySelector<HTMLDivElement>("#submission")!.innerHTML = html`
 function renderShell() {
   document.querySelector<HTMLDivElement>("#submission")!.innerHTML = html`
     <section
-      class="w-full h-212.5 flex flex-col gap-5 justify-center items-center"
+      class="w-full max-w-2xl min-h-screen mx-auto mt-10 sm:max-5xl:mt-0 px-4 py-4 flex flex-col gap-5 justify-center items-center"
     >
-      <h1 class="text-3xl font-bold text-zinc-700">Submit a Zen</h1>
+      <h1 class="text-2xl font-bold text-zinc-700">Submit a Zen</h1>
       <div
         id="back"
-        class="w-1/3 flex flex-row justify-items-start items-center gap-2 cursor-pointer"
+        class="w-full max-w-2xl flex flex-row justify-items-start items-center gap-2 cursor-pointer"
       ></div>
-      <form id="form" class="flex flex-col justify-center gap-3 w-1/3"></form>
+      <form
+        id="form"
+        class="w-full max-w-2xl flex flex-col justify-center gap-3 "
+      ></form>
       <p id="errors"></p>
     </section>
   `;
@@ -42,24 +53,34 @@ function renderForm() {
   const form = document.querySelector<HTMLFormElement>("#form")!;
   const backButton = document.querySelector<HTMLDivElement>("#back")!;
 
+  editor = new EditorJS({
+    holder: "editorjs",
+    placeholder: "Write your Zen here",
+    tools: {
+      header: Header,
+      list: List,
+      delimiter: Delimiter,
+      underline: Underline,
+    },
+  });
+
   form.innerHTML = html`
-    <label for="title" class="text-lg font-semibold">Title</label>
+    <label for="title" class="text-lg font-semibold pl-2">Title</label>
     <input
       type="text"
       id="title"
       placeholder="Zen title"
       class="border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
     />
-    <label for="body" class="text-lg font-semibold">Poem</label>
-    <textarea
-      id="body"
-      rows="10"
-      placeholder="Write your Zen here"
+    <label for="body" class="text-lg font-semibold pl-2">Poem</label>
+    <div
+      id="editorjs"
       class="border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-    ></textarea>
-    <label for="tags" class="text-lg font-semibold"
-      >Tags (comma separated, optional)</label
+    ></div>
+    <label for="tags" class="text-lg font-semibold pl-2"
+      >Tags <span class="text-sm font-semibold">(press comma or Enter to add, optional/recommended)</span></label
     >
+    <div id="tag-chips" class="flex flex-wrap gap-2 my-1"></div>
     <input
       type="text"
       id="tags"
@@ -105,6 +126,69 @@ function renderForm() {
     "click",
     () => (window.location.href = "/account/"),
   );
+
+  setupTagInput();
+  renderTagChips();
+}
+
+function setupTagInput() {
+  const input = document.querySelector<HTMLInputElement>("#tags")!;
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "," || e.key === "Enter") {
+      e.preventDefault();
+      commitTag(input.value);
+      input.value = "";
+    } else if (e.key === "Backspace" && input.value === "" && tags.length) {
+      tags.pop();
+      renderTagChips();
+    }
+  });
+}
+
+function renderTagChips() {
+  const container = document.querySelector<HTMLDivElement>("#tag-chips")!;
+  if (tags.length < 1) {
+    document.querySelector<HTMLDivElement>("#tag-chips")!.className = "flex flex-wrap gap-2 my-0";
+  } else {
+    document.querySelector<HTMLDivElement>("#tag-chips")!.className = "flex flex-wrap gap-2 my-1";
+  }
+  container.innerHTML = tags
+    .map(
+      (tag, idx) => html`
+        <span
+          class="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded-full"
+        >
+          ${tag}
+          <button
+            type="button"
+            data-index=${idx}
+            class="cursor-pointer font-bold hover:text-blue-600"
+          >
+            x
+          </button>
+        </span>
+      `,
+    )
+    .join("");
+
+  container
+    .querySelectorAll<HTMLButtonElement>("button[data-index]")
+    .forEach((btn) => {
+      btn.addEventListener("click", () => {
+        tags.splice(Number(btn.dataset.index), 1);
+        renderTagChips();
+        renderErrors();
+      });
+    });
+}
+
+function commitTag(raw: string) {
+  const tag = raw.trim();
+  if (!tag) return;
+  if (tags.includes(tag)) return;
+  if (tags.length > MAX_TAGS) return;
+  tags.push(tag);
+  renderTagChips();
 }
 
 function renderErrors() {
@@ -130,18 +214,19 @@ async function handleSubmit(e: SubmitEvent) {
   e.preventDefault();
 
   const title = document.querySelector<HTMLInputElement>("#title")!.value;
-  const body = document.querySelector<HTMLTextAreaElement>("#body")!.value;
+  const outputData = await editor.save();
   const isPublic = document.querySelector<HTMLInputElement>("#public")!.checked;
-  const tagsRaw = document.querySelector<HTMLInputElement>("#tags")!.value;
-  const tags = tagsRaw
-    .split(",")
-    .map((tag) => tag.trim())
-    .filter((tag) => tag.length > 0);
+  const tagInput = document.querySelector<HTMLInputElement>("#tags")!;
+  const pending = tagInput.value.trim();
+  if (pending) {
+    commitTag(pending);
+    tagInput.value = "";
+  }
 
   try {
     const validated = await PoemSchema.parseAsync({
       title,
-      body,
+      body: outputData,
       tags,
       isPublic,
     });

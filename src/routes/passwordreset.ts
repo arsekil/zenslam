@@ -7,16 +7,19 @@ import "../style.css";
 
 document.querySelector<HTMLDivElement>("#reset")!.innerHTML = html`
   <section
-    class="w-full h-screen flex flex-col gap-5 justify-center items-center"
+    class="w-full max-w-md min-h-screen mx-auto flex flex-col gap-5 justify-center items-center"
   >
-    <section class="w-1/4 flex flex-row justify-between items-center">
+    <section class="w-full max-w-md flex flex-row justify-between items-center">
       <div
         id="back"
-        class="w-1/4 flex flex-row items-start gap-2 cursor-pointer"
+        class="w-full flex flex-row items-start gap-2 cursor-pointer"
       ></div>
       <div id="help"></div>
     </section>
-    <form id="form" class="flex flex-col gap-3 w-1/4"></form>
+    <form
+      id="form"
+      class="flex flex-col gap-3 w-full max-w-md md:2xl:max-w-md"
+    ></form>
     <p id="message"></p>
   </section>
 `;
@@ -86,7 +89,7 @@ function renderForm() {
 function showMessage(message: string) {
   const messageBox = document.querySelector<HTMLParagraphElement>("#message")!;
   messageBox.className =
-    "w-1/4 text-white text-sm py-2 px-4 rounded-md bg-green-600 ring-white ring-4";
+    "w-full max-w-md text-white text-sm py-2 px-4 rounded-md bg-green-600 ring-white ring-4";
   messageBox.innerText = message;
 }
 
@@ -96,7 +99,6 @@ async function handleSubmit(email: string) {
     handleCodeInApp: true,
   };
 
-  console.log(import.meta.env.VITE_APP_URL);
   try {
     await sendPasswordResetEmail(auth, email, actionCodeSettings);
     showMessage(
