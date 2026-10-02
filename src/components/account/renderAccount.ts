@@ -14,7 +14,7 @@ import { html } from "../../lib/html";
 
 let isSaving = false;
 let errorType: "zodError" | "" = "";
-let errorMessage: string | z.ZodIssue[] = "";
+let errorMessage: FirebaseError | z.ZodIssue[] | string = "";
 
 export default async function renderAccount(
   user: User,
@@ -118,7 +118,7 @@ export default async function renderAccount(
         saveButton.disabled = true;
         saveButton.textContent = "Saving...";
         try {
-          renderErrors(false, "", "");
+          renderErrors(false, "", "" as unknown as FirebaseError);
           const outputData = await editor.save();
           await bioSchema.parseAsync(outputData);
 
@@ -134,7 +134,7 @@ export default async function renderAccount(
             renderErrors(true, errorType, errorMessage);
           } else {
             errorType = "";
-            errorMessage = "Non-validation related issue, Contact support!";
+            errorMessage = error as FirebaseError;
             //TODO error admin UI panel
             console.error(error);
             renderErrors(true, errorType, errorMessage);
@@ -162,12 +162,12 @@ export default async function renderAccount(
       saveButton.classList.add("hidden");
       logoutButton.classList.add("hidden");
     }
-    renderErrors(false, "", "");
+    renderErrors(false, "", "" as unknown as FirebaseError);
   } catch (error) {
     errorType = "";
     errorMessage = error as unknown as string;
     //TODO error admin UI panel
     console.error(error);
-    renderErrors(true, errorType, errorMessage);
+    renderErrors(true, errorType, errorMessage as unknown as string);
   }
 }

@@ -5,8 +5,7 @@ import List from "@editorjs/list";
 import Delimiter from "@editorjs/delimiter";
 import Underline from "@editorjs/underline";
 import { html } from "../../lib/html";
-import setupTagInput from "./setupTagInput";
-import renderTagChips from "./renderTagChips";
+import { setupTagInput, renderTagChips } from "./handleSubmit";
 import handleSubmit from "./handleSubmit";
 
 let editor: EditorJS;
