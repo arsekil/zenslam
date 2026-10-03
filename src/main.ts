@@ -30,7 +30,7 @@ import "./style.css";
 /** Renders the authentication form based on the current mode */
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = html`
   <section
-    class="w-full min-h-screen flex flex-col gap-5 justify-center items-center"
+    class="w-full mx-auto h-screen flex flex-col gap-5 justify-center items-center"
   >
     <p class="text-zinc-800">Loading…</p>
   </section>
@@ -39,7 +39,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = html`
 function renderShell() {
   document.querySelector<HTMLDivElement>("#app")!.innerHTML = html`
     <section
-      class="w-full min-h-screen flex flex-col justify-center items-center gap-5"
+      class="w-full mx-auto min-h-screen flex flex-col justify-center items-center gap-5"
     >
       <article class="flex flex-row justify-center items-center gap-4">
         <svg viewBox="0 0 28 28" width="28" height="28">
@@ -50,7 +50,7 @@ function renderShell() {
           <path d="${mdiFeather}" />
         </svg>
       </article>
-      <article class="w-1/2 min-h-screen flex flex-col gap-3">
+      <article class="w-1/2 flex flex-col gap-3">
         <div id="cta"></div>
         <div id="signout"></div>
         <div id="poem-feed"></div>

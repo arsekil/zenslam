@@ -2,8 +2,8 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { html } from "../lib/html";
 import renderForm from "../components/submission/renderForm";
+import { routes } from "../lib/routes";
 import "../style.css";
-
 
 document.querySelector<HTMLDivElement>("#submission")!.innerHTML = html`
   <section
@@ -36,7 +36,8 @@ function renderShell() {
 
 onAuthStateChanged(auth, (user) => {
   if (!user) {
-    window.location.href = "/";
+    window.location.replace(routes.cta);
+    return;
   } else {
     renderShell();
   }

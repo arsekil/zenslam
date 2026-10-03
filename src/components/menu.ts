@@ -48,9 +48,7 @@ function renderMenu() {
 }
 
 onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = "/";
-  } else {
+  if (user) {
     renderMenu();
   }
 });

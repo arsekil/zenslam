@@ -13,7 +13,7 @@ import { editor } from "./renderBio";
 import { html } from "../../lib/html";
 
 let isSaving = false;
-let errorType: "zodError" | "" = "";
+let errorType: "zodError" | "FBError" | "" = "";
 let errorMessage: FirebaseError | z.ZodIssue[] | string = "";
 
 export default async function renderAccount(
@@ -132,8 +132,8 @@ export default async function renderAccount(
             errorType = "zodError";
             errorMessage = error.issues;
             renderErrors(true, errorType, errorMessage);
-          } else {
-            errorType = "";
+          } else if (error instanceof FirebaseError) {
+            errorType = "FBError";
             errorMessage = error as FirebaseError;
             //TODO error admin UI panel
             console.error(error);
