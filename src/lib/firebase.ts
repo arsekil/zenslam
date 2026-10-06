@@ -27,7 +27,7 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 if (import.meta.env.VITE_USE_EMULATORS === "true") {
   connectAuthEmulator(auth, "http://localhost:9099", { disableWarnings: true });
-  connectFirestoreEmulator(db, "localhost", 8090);
+  connectFirestoreEmulator(db, "localhost", 8100);
 }
 //TODO: Add reCAPTCHA Enterprise integration later
 // export const appCheck = initializeAppCheck(app, {
