@@ -26,7 +26,7 @@ export default async function renderAccount(
 
     if (!profileSnap.exists()) {
       document.querySelector<HTMLDivElement>("#account")!.innerHTML =
-        `<p class="text-center mt-10">This profile doesn't exist.</p>`;
+        `<p class="w-2xl min-h-screen mx-auto text-lg font-semibold text-center text-red-500 flex flex-col justify-center items-center">This profile doesn't exist.</p>`;
       return;
     } else {
       document.querySelector<HTMLDivElement>("#account")!.innerHTML = html`

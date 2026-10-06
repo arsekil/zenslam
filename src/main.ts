@@ -25,6 +25,7 @@ import tailwindLogo from "./assets/tailwind.svg";
 import htmlLogo from "./assets/HTML5.svg";
 import zodLogo from "./assets/Zod.svg";
 import { html } from "./lib/html";
+import { routes } from "./lib/routes";
 import "./style.css";
 
 /** Renders the authentication form based on the current mode */
@@ -206,7 +207,7 @@ async function renderFeed() {
                 class="w-full flex flex-col sm:3xl:flex-row justify-between items-center border rounded-md p-4 gap-3 sm:2xl:gap-0"
               >
                 <article class="w-full flex justify-center items-center">
-                  <h3 class="font-semibold">${poem.title}</h3>
+                  <a href="/poem/?id=${entry.id}" class="text-zinc-800 font-semibold no-underline hover:text-blue-800">${poem.title}</a>
                 </article>
                 <article class="w-full max-w-35 flex flex-row justify-center">
                   ${String(ratings.display)}
@@ -215,9 +216,9 @@ async function renderFeed() {
                   <article class="max-w-50">
                     <p class="max-w-50">
                       posted by
-                      <span class="no-underline text-blue-800 cursor-pointer">
+                      <a href="/account/?uid=${poem.authorUid}" class="no-underline text-blue-800 cursor-pointer">
                         ${poem.displayName ?? "Unknown"}
-                      </span>
+                      </a>
                     </p>
                   </article>
                   <article class="max-w-50">
