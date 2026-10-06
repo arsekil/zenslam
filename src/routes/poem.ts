@@ -59,7 +59,7 @@ async function renderPoem(poemId: string | null, user: User | null) {
         >
           <article
             id="poemTitle"
-            class="mb-10 border border-gray-300 rounded-md py-2 px-4 flex flex-row items-center justify-center gap-3 text-4xl font-semibold text-zinc-800 wrap-break-word"
+            class="w-full border border-gray-300 rounded-md py-2 px-4 flex flex-row items-center justify-center gap-3 text-4xl font-semibold text-zinc-800 wrap-break-word"
           >
             <svg viewBox="0 0 28 28" width="28" height="28">
               <path d="${mdiYinYang}" />
@@ -73,9 +73,9 @@ async function renderPoem(poemId: string | null, user: User | null) {
           </article>
           <article
             id="editorjs"
-            class="w-full max-w-2xl border border-gray-300 rounded-md py-2 px-4 flex flex-col items-center justify-center"
+            class="w-full max-w-2xl my-2 border border-gray-300 rounded-md py-2 px-4 flex flex-col items-center justify-center"
           ></article>
-          <article id="tag-chips" class=""></article>
+          <article id="tag-chips"></article>
         </section>
       `;
 
@@ -133,12 +133,13 @@ function renderTagChips(tags: string[]) {
       "flex flex-wrap gap-2 my-0";
   } else {
     document.querySelector<HTMLDivElement>("#tag-chips")!.className =
-      "flex flex-wrap gap-2 my-1";
+      "w-full flex flex-row justify-center items-center gap-2 border border-gray-300 rounded-md py-2 px-4";
   }
   container.innerHTML = tags
     .map(
       (tag) => html`
-        <a href="/tags/?t=${tag}"
+        <a
+          href="/tags/?t=${tag}"
           class="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded-full no-underline"
         >
           ${tag}

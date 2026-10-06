@@ -18,6 +18,7 @@ import Underline from "@editorjs/underline";
 import { html } from "../lib/html";
 import { type PoemDocument } from "../types/PoemDocument";
 import "../style.css";
+import formatDate from "../lib/formatDate";
 
 const params = new URLSearchParams(window.location.search);
 const tag = params.get("t");
@@ -37,8 +38,12 @@ document.querySelector<HTMLDivElement>("#tags")!.innerHTML = html`
 
 function renderTags(tag: string | null, user: User | null) {
   document.querySelector<HTMLDivElement>("#tags")!.innerHTML = html`
-    <section class="w-full max-w-2xl min-h-screen mx-auto mt-10 flex flex-row justify-center items-start">
-      <article class="w-1/4 text-2xl font-semibold text-zinc-800">#${tag}</article>
+    <section
+      class="w-full max-w-2xl min-h-screen mx-auto mt-10 flex flex-row justify-center items-start"
+    >
+      <article class="w-1/4 text-2xl font-semibold text-zinc-800">
+        #${tag}
+      </article>
       <article id="poem" class="w-3/4"></article>
     </section>
   `;
@@ -57,7 +62,8 @@ function renderTags(tag: string | null, user: User | null) {
       snapshot.docs.forEach((entry) => publicDocs.set(entry.id, entry));
       renderMergedPoems();
     },
-    (error: FirebaseError) => console.error("Public feed snapshot error:", error),
+    (error: FirebaseError) =>
+      console.error("Public feed snapshot error:", error),
   );
 
   let unsubscribeOwn: (() => void) | undefined;
@@ -78,7 +84,8 @@ function renderTags(tag: string | null, user: User | null) {
         snapshot.docs.forEach((entry) => ownDocs.set(entry.id, entry));
         renderMergedPoems();
       },
-      (error: FirebaseError) => console.error("Own feed snapshot error:", error),
+      (error: FirebaseError) =>
+        console.error("Own feed snapshot error:", error),
     );
   }
 
@@ -105,11 +112,14 @@ function renderMergedPoems() {
     .map((entry) => {
       const poem = entry.data() as PoemDocument;
       return html`
-        <article class="w-3/4 mb-10 border border-gray-300 px-4 py-2 rounded-md">
+        <article
+          class="w-full mb-10 border border-gray-300 px-4 py-2 rounded-md"
+        >
           <div id="poemsTitle" class="w-3/4">${poem.title}</div>
           <div class="h-0 border border-gray-300 rounded-full"></div>
-          <div id="editorjs-${entry.id}" class="w-3/4"></div>
-          <div id="metadata-${entry.id}" class="w-3/4"></div>
+          <div id="editorjs-${entry.id}" class="w-full"></div>
+          <div class="h-0 border border-gray-300 rounded-full"></div>
+          <div id="metadata-${entry.id}" class="w-full"></div>
         </article>
       `;
     })
@@ -120,6 +130,7 @@ function renderMergedPoems() {
   sorted.forEach((entry) => {
     const poem = entry.data() as PoemDocument;
     renderPoemBody(`editorjs-${entry.id}`, poem.body);
+    renderMetadata(`${entry.id}`, poem);
   });
 }
 
@@ -139,9 +150,14 @@ async function renderPoemBody(id: string, body: OutputData) {
   editors.set(id, editor);
 }
 
-//TODO
-function renderMetadata(user: User | null) {
-  document.querySelector<HTMLDivElement>("#metadata")!.innerHTML = html``;
+function renderMetadata(id: string | null, poem: PoemDocument) {
+  document.querySelector<HTMLDivElement>(`#metadata-${id}`)!.innerHTML = html`
+    <article class="w-full flex flex-row justify-between items-center">
+      <div class="w-1/3">by ${poem.displayName}</div>
+      <div class="w-1/3">rating ${poem.avgRating}</div>
+      <div class="w-1/3">on ${formatDate(poem.createdAt)}</div>
+    </article>
+  `;
 }
 
 onAuthStateChanged(auth, (user: User | null) => {
