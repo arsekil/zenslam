@@ -6,7 +6,7 @@ import Header from "@editorjs/header";
 import List from "@editorjs/list";
 import Delimiter from "@editorjs/delimiter";
 import Underline from "@editorjs/underline";
-import { mdiFeather, mdiYinYang } from "@mdi/js";
+import { mdiFeather, mdiYinYang, mdiArrowLeft } from "@mdi/js";
 import { auth, db } from "../lib/firebase";
 import { html } from "../lib/html";
 import { routes } from "../lib/routes";
@@ -14,9 +14,8 @@ import "../style.css";
 
 const params = new URLSearchParams(window.location.search);
 const poemId = params.get("id");
-let isError: boolean = false;
-let errorType: "FBError" | "" = "";
-let editor: EditorJS;
+
+let editor: EditorJS | undefined;
 
 document.querySelector<HTMLDivElement>("#poem")!.innerHTML = html`
   <section
@@ -46,76 +45,108 @@ async function renderPoem(poemId: string | null, user: User | null) {
     if (poemSnap.exists()) {
       const poem: DocumentData = poemSnap.data();
 
-      const canView = poem.isPublic || poem.authorUid === user?.uid;
+      const canView =
+        poem.isPublic || (user !== null && poem.authorUid === user.uid);
+      const canEdit = user !== null && poem.authorUid === user.uid;
 
       if (!canView) {
         window.location.href = routes.poems;
         return;
-      }
-
-      document.querySelector<HTMLDivElement>("#poem")!.innerHTML = html`
-        <section
-          class="w-full max-w-2xl h-screen min-h-screen mx-auto flex flex-col items-center justify-center"
-        >
-          <article
-            id="poemTitle"
-            class="w-full border border-gray-300 rounded-md py-2 px-4 flex flex-row items-center justify-center gap-3 text-4xl font-semibold text-zinc-800 wrap-break-word"
+      } else {
+        document.querySelector<HTMLDivElement>("#poem")!.innerHTML = html`
+          <section
+            class="w-full max-w-2xl h-screen min-h-screen mx-auto flex flex-col items-center justify-center"
           >
-            <svg viewBox="0 0 28 28" width="28" height="28">
-              <path d="${mdiYinYang}" />
-            </svg>
-            <p class="flex flex-row items-center justify-center">
-              ${poem.title}
-            </p>
-            <svg viewBox="0 0 28 28" width="28" height="28">
-              <path d="${mdiFeather}" />
-            </svg>
-          </article>
-          <article
-            id="editorjs"
-            class="w-full max-w-2xl my-2 border border-gray-300 rounded-md py-2 px-4 flex flex-col items-center justify-center"
-          ></article>
-          <article id="tag-chips"></article>
-        </section>
-      `;
+            <article
+              class="w-full mb-2 flex flex-row justify-between items-center"
+            >
+              <article
+                id="back"
+                class="border border-gray-300 rounded-md py-2 px-4 text-lg text-zinc-800 font-semibold"
+              >
+                <a
+                  href="#"
+                  class="flex flex-row justify-center items-center gap-1"
+                >
+                  <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path d="${mdiArrowLeft}" />
+                  </svg>
+                  <p>Back</p>
+                </a>
+              </article>
+              <article id="edit"></article>
+            </article>
+            <article
+              id="poemTitle"
+              class="w-full border border-gray-300 rounded-md py-2 px-4 flex flex-row items-center justify-center gap-3 text-4xl font-semibold text-zinc-800 wrap-break-word"
+            >
+              <svg viewBox="0 0 28 28" width="28" height="28">
+                <path d="${mdiYinYang}" />
+              </svg>
+              <p class="flex flex-row items-center justify-center">
+                ${poem.title}
+              </p>
+              <svg viewBox="0 0 28 28" width="28" height="28">
+                <path d="${mdiFeather}" />
+              </svg>
+            </article>
+            <article
+              id="editorjs"
+              class="w-full max-w-2xl my-2 border border-gray-300 rounded-md py-2 px-4 flex flex-col items-center justify-center"
+            ></article>
+            <article id="tag-chips"></article>
+          </section>
+        `;
 
-      renderPoemBody(poem.body);
+        if (canEdit) {
+          renderEditButton();
+        }
 
-      renderTagChips(poem.tags);
+        renderPoemBody(poem.body, true);
+
+        renderTagChips(poem.tags);
+      }
     }
   } catch (error) {
     if (error instanceof FirebaseError && error.code === "permission-denied") {
-      isError = true;
-      errorType = "FBError";
-      renderErrors(true, "FBError");
+      renderErrors();
     } else {
+      //TODO Admin panel
       console.error(error);
     }
   }
 }
 
-function renderErrors(isError: boolean, errorType: "FBError" | string) {
-  if (isError) {
-    if (errorType === "FBError") {
-      document.querySelector<HTMLDivElement>("#poem")!.innerHTML = html`
-        <section
-          class="w-full min-h-screen mx-auto flex items-center justify-center"
-        >
-          <article class="text-md font-semibold text-red-500">
-            This Zen - unfortunately - doesn't exist.
-          </article>
-        </section>
-      `;
-      return;
-    }
-  }
+function renderEditButton() {
+  document.querySelector<HTMLElement>("#edit")!.innerHTML = html`
+    <svg viewBox="0 0 24 24" width="24" height="24">
+      <path d="${mdiFeather}" />
+    </svg>
+    <a href="/poem/edit/?id=${poemId}">Edit</a>
+  `;
+
+  document.querySelector<HTMLElement>("#edit")!.className =
+    "border border-gray-300 rounded-md py-2 px-4  text-lg text-zinc-800 font-semibold flex flex-row justify-center items-center cursor-pointer";
 }
 
-async function renderPoemBody(body: OutputData) {
+function renderErrors() {
+  document.querySelector<HTMLDivElement>("#poem")!.innerHTML = html`
+    <section
+      class="w-full min-h-screen mx-auto flex items-center justify-center"
+    >
+      <article class="text-md font-semibold text-red-500">
+        This Zen - unfortunately - doesn't exist.
+      </article>
+    </section>
+  `;
+  return;
+}
+
+async function renderPoemBody(body: OutputData, editFlag: boolean) {
   editor = new EditorJS({
     holder: "editorjs",
     data: body ?? { blocks: [] },
-    readOnly: true,
+    readOnly: editFlag,
     tools: {
       header: Header,
       list: List,
@@ -149,6 +180,11 @@ function renderTagChips(tags: string[]) {
     .join("");
 }
 
+let renderedUid: string | null | undefined = undefined;
+
 onAuthStateChanged(auth, async (user: User | null) => {
+  const uid = user?.uid ?? null;
+  if (uid === renderedUid) return;
+  renderedUid = uid;
   await renderPoem(poemId, user);
 });

@@ -15,6 +15,7 @@ import {
   orderBy,
   onSnapshot,
 } from "firebase/firestore";
+import type { ZodIssue } from "zod";
 import { auth, db } from "./lib/firebase";
 import formatDate from "./lib/formatDate";
 import { type PoemDocument } from "../src/types/PoemDocument";
@@ -25,7 +26,6 @@ import tailwindLogo from "./assets/tailwind.svg";
 import htmlLogo from "./assets/HTML5.svg";
 import zodLogo from "./assets/Zod.svg";
 import { html } from "./lib/html";
-import { routes } from "./lib/routes";
 import "./style.css";
 
 /** Renders the authentication form based on the current mode */
@@ -165,7 +165,7 @@ function renderLogout(user: User) {
         window.location.href = "/";
       } catch (error) {
         if (error instanceof FirebaseError) {
-          console.error("Error signing out:", error);
+          renderErrors(error);
         }
       }
     });
@@ -207,7 +207,11 @@ async function renderFeed() {
                 class="w-full flex flex-col sm:3xl:flex-row justify-between items-center border rounded-md p-4 gap-3 sm:2xl:gap-0"
               >
                 <article class="w-full flex justify-center items-center">
-                  <a href="/poem/?id=${entry.id}" class="text-zinc-800 font-semibold no-underline hover:text-blue-800">${poem.title}</a>
+                  <a
+                    href="/poem/?id=${entry.id}"
+                    class="text-zinc-800 font-semibold no-underline hover:text-blue-800"
+                    >${poem.title}</a
+                  >
                 </article>
                 <article class="w-full max-w-35 flex flex-row justify-center">
                   ${String(ratings.display)}
@@ -216,7 +220,10 @@ async function renderFeed() {
                   <article class="max-w-50">
                     <p class="max-w-50">
                       posted by
-                      <a href="/account/?uid=${poem.authorUid}" class="no-underline text-blue-800 cursor-pointer">
+                      <a
+                        href="/account/?uid=${poem.authorUid}"
+                        class="no-underline text-blue-800 cursor-pointer"
+                      >
                         ${poem.displayName ?? "Unknown"}
                       </a>
                     </p>
@@ -237,14 +244,59 @@ async function renderFeed() {
         `;
       },
       (error) => {
-        console.error("Feed snapshot error:", error);
+        if (error instanceof FirebaseError) {
+          renderErrors(error);
+        }
       },
     );
 
     return unsubscribe;
   } catch (error) {
-    //TODO
-    console.error(error);
+    if (error instanceof FirebaseError) {
+      renderErrors(error);
+    } else if (error instanceof Error) {
+      renderErrors(error);
+    }
+  }
+}
+
+function renderErrors(error: Error | ZodIssue[] | FirebaseError) {
+  const errorContainer =
+    document.querySelector<HTMLParagraphElement>("#errors")!;
+  if (!error) {
+    errorContainer.textContent = "";
+    document.querySelector<HTMLButtonElement>(
+      "input[type='submit']",
+    )!.disabled = false;
+    return;
+  }
+  if (error && Array.isArray(error)) {
+    errorContainer.innerHTML = error
+      .map(
+        (issue) =>
+          html`<p class="text-white font-semibold bg-red-500 text-sm">
+            ${issue.message}
+          </p>`,
+      )
+      .join("");
+    document.querySelector<HTMLButtonElement>(
+      "input[type='submit']",
+    )!.disabled = true;
+  } else if (error && error instanceof FirebaseError) {
+    errorContainer.innerHTML = html`<p
+      class="text-white font-semibold bg-red-500 text-sm"
+    >
+      ${error.message}
+    </p>`;
+  } else {
+    errorContainer.innerHTML = html`<p
+      class="text-white font-semibold bg-red-500 text-sm"
+    >
+      ${error}
+    </p>`;
+    document.querySelector<HTMLButtonElement>(
+      "input[type='submit']",
+    )!.disabled = true;
   }
 }
 
