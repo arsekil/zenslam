@@ -12,7 +12,6 @@ dist
 dist-ssr
 .vitest/
 coverage/
-test/
 
 *.local
 .env.*
