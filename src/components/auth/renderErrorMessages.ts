@@ -1,21 +1,43 @@
-import z from "zod";
+import { FirebaseError } from "firebase/app";
+import type { ZodIssue } from "zod";
+import { html } from "../../lib/html";
 
-let isError: boolean = false;
-let errorType: "zodError" | "FBError" | "" = "";
-let errorMessage: unknown | z.ZodIssue[] = [];
-
-export default function renderErrorMessages() {
+export default function renderErrors(error: Error | ZodIssue[] | FirebaseError) {
   const errorContainer =
     document.querySelector<HTMLParagraphElement>("#errors")!;
-  if (isError) {
-    if (errorType === "zodError" && Array.isArray(errorMessage)) {
-      errorContainer.innerHTML = errorMessage
-        .map((issue) => `<p>${issue.message}</p>`)
-        .join("");
-    } else if (errorType === "FBError" && typeof errorMessage === "string") {
-      errorContainer.textContent = errorMessage;
-    }
-  } else {
+  if (!error) {
     errorContainer.textContent = "";
+    document.querySelector<HTMLButtonElement>(
+      "input[type='submit']",
+    )!.disabled = false;
+    return;
+  }
+  if (error && Array.isArray(error)) {
+    errorContainer.innerHTML = error
+      .map(
+        (issue) =>
+          html`<p class="text-white font-semibold bg-red-500 text-sm">
+            ${issue.message}
+          </p>`,
+      )
+      .join("");
+    document.querySelector<HTMLButtonElement>(
+      "input[type='submit']",
+    )!.disabled = true;
+  } else if (error && error instanceof FirebaseError) {
+    errorContainer.innerHTML = html`<p
+      class="text-white font-semibold bg-red-500 text-sm"
+    >
+      ${error.message}
+    </p>`;
+  } else {
+    errorContainer.innerHTML = html`<p
+      class="text-white font-semibold bg-red-500 text-sm"
+    >
+      ${error}
+    </p>`;
+    document.querySelector<HTMLButtonElement>(
+      "input[type='submit']",
+    )!.disabled = true;
   }
 }

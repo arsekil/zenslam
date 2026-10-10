@@ -4,7 +4,6 @@ import {
   mdiEyeOutline,
   mdiEyeOffOutline,
 } from "@mdi/js";
-import renderErrorMessages from "../auth/renderErrorMessages";
 import handleSubmit from "../auth/handleSubmit";
 import { routes } from "../../lib/routes";
 import { html } from "../../lib/html";
@@ -12,7 +11,6 @@ import { html } from "../../lib/html";
 const params = new URLSearchParams(window.location.search);
 const modeParam = params.get("mode");
 
-let isError: boolean = false;
 let mode: "login" | "signup" = modeParam === "signup" ? "signup" : "login";
 
 /** Renders the authentication form based on the current mode */
@@ -157,13 +155,11 @@ export default function renderForm() {
     .addEventListener("click", (e) => {
       e.preventDefault();
       mode = mode === "login" ? "signup" : "login";
-      isError = false;
 
       const url = new URL(window.location.href);
       url.searchParams.set("mode", mode);
       window.history.replaceState({}, "", url);
 
       renderForm();
-      renderErrorMessages();
     });
 }

@@ -6,17 +6,12 @@ import {
   sendEmailVerification,
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { FirebaseError } from "firebase/app";
 import { auth, db } from "../../lib/firebase";
-import getFriendlyAuthError from "../../lib/getFriendlyAuthError";
 import renderErrorMessages from "./renderErrorMessages";
 import validateSignup from "../../components/auth/validateSignup";
 import validateLogin from "../../components/auth/validateLogin";
 
 let isSigningUp: boolean = false;
-let isError: boolean = false;
-let errorType: "zodError" | "FBError" | "" = "";
-let errorMessage: unknown | z.ZodIssue[] = [];
 
 const params = new URLSearchParams(window.location.search);
 const modeParam = params.get("mode");
@@ -72,25 +67,14 @@ export default async function handleSubmit(e: SubmitEvent) {
       await sendEmailVerification(auth?.currentUser!);
 
       isSigningUp = false;
-      isError = false;
       window.location.href = "/";
     } else {
       await validateLogin({ email, password });
       await signInWithEmailAndPassword(auth, email, password);
-      isError = false;
     }
   } catch (error: any) {
     isSigningUp = false;
-    if (error instanceof FirebaseError) {
-      isError = true;
-      errorType = "FBError";
-      errorMessage = getFriendlyAuthError(error.code);
-    } else if (error instanceof z.ZodError) {
-      isError = true;
-      errorType = "zodError";
-      errorMessage = error.issues;
-    }
+    renderErrorMessages(error);
   }
 
-  renderErrorMessages();
 }
