@@ -29,29 +29,28 @@ export default defineConfig({
     projects: [
       {
         test: {
+          include: [
+            "test/unit/**/*.{test,spec}.ts",
+            "test/**/*.unit.{test,spec}.ts",
+          ],
           name: "unit",
-          include: ["./test/unit/*.test.js"],
+          environment: "happy-dom",
         },
       },
       {
         test: {
-          name: "e2e",
-          include: ["./test/e2e/*.test.js"],
+          include: [
+            "test/browser/**/*.{test,spec}.ts",
+            "test/**/*.browser.{test,spec}.ts",
+          ],
+          name: "browser",
+          browser: {
+            enabled: true,
+            provider: playwright(),
+            instances: [{ browser: "chromium" }],
+          },
         },
       },
     ],
-    include: [
-      ...configDefaults.include,
-      "./test",
-      "**/*.{test,spec}.?(c|m)[jt]s?(x)",
-    ],
-    browser: {
-      enabled: true,
-      provider: playwright(),
-      instances: [
-        { browser: "chromium", name: "Chrome" },
-        { browser: "firefox", name: "Firefox" },
-      ],
-    },
   },
 });
