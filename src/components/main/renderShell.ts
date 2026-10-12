@@ -16,14 +16,18 @@ export function renderShell() {
         <svg viewBox="0 0 28 28" width="28" height="28">
           <path d="${mdiYinYang}" />
         </svg>
-        <h1 id="landing-title" class="text-xl font-bold text-zinc-700">r/zen slam poetry</h1>
+        <h1 id="landing-title" class="text-xl font-bold text-zinc-700">
+          r/zen slam poetry
+        </h1>
         <svg viewBox="0 0 28 28" width="28" height="28">
           <path d="${mdiFeather}" />
         </svg>
       </article>
       <article class="w-1/2 flex flex-col gap-3">
         <div id="cta"></div>
-        <div id="signout"></div>
+        <div id="signout">
+          <p id="errors"></p>
+        </div>
         <div id="poem-feed"></div>
       </article>
       <span class="flex flex-row justify-center gap-1 text-xs text-semibold"
