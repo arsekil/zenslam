@@ -14,9 +14,6 @@ import renderErrors from "./renderErrors";
 
 let tags: string[] = [];
 const MAX_TAGS = 5;
-let isError = false;
-let errorType: "zodError" | "FBError" | "" = "";
-let errorMessage: FirebaseError | z.ZodIssue[];
 
 export function commitTag(raw: string) {
   const tag = raw.trim();
@@ -54,6 +51,7 @@ export function renderTagChips() {
     .map(
       (tag, idx) => html`
         <span
+          role="listitem"
           class="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded-full"
         >
           ${tag}
@@ -111,16 +109,12 @@ export async function handleSubmit(e: SubmitEvent, editor: EditorJS) {
     window.location.href = "/account/";
   } catch (error: any) {
     if (error instanceof FirebaseError) {
-      isError = true;
-      errorType = "FBError";
-      errorMessage = error as FirebaseError; //"Something went wrong saving your poem. Please try again.";
+      //TODO "Something went wrong saving your poem. Please try again.";
     } else if (error instanceof z.ZodError) {
-      isError = true;
-      errorType = "zodError";
-      errorMessage = error.issues;
+      //TODO
     }
   }
-  renderErrors();
+  //renderErrors();
 }
 
 
@@ -157,7 +151,7 @@ export default function renderForm() {
     <label for="tags" class="text-lg font-semibold pl-2"
       >Tags <span class="text-sm font-semibold">(press comma or Enter to add, optional/recommended)</span></label
     >
-    <div id="tag-chips" class="flex flex-wrap gap-2 my-1"></div>
+    <div id="tag-chips" role="list" class="flex flex-wrap gap-2 my-1"></div>
     <input
       type="text"
       id="tags"

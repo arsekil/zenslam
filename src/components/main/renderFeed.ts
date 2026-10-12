@@ -4,6 +4,7 @@ import { db } from "../../lib/firebase";
 import { renderErrors } from "./renderErrors";
 import { poemRatings } from "./poemRatings";
 import formatDate from "../../lib/formatDate";
+import { poemUrl } from "../../lib/routes";
 import type { PoemDocument } from "../../types/PoemDocument";
 import { html } from "../../lib/html";
 
@@ -29,7 +30,7 @@ export async function renderFeed() {
               >
                 <article class="w-full flex justify-center items-center">
                   <a
-                    href="/poem/?id=${entry.id}"
+                    href="${poemUrl(entry.id, "feed")}"
                     class="text-zinc-800 font-semibold no-underline hover:text-blue-800"
                     >${poem.title}</a
                   >

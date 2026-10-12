@@ -5,6 +5,7 @@ import { signOut } from "firebase/auth";
 import { renderErrors } from "../main/renderErrors";
 import { auth } from "../../lib/firebase";
 import { html } from "../../lib/html";
+import { accountUrl } from "../../lib/routes";
 
 export function renderLogout(user: User) {
   document.querySelector<HTMLButtonElement>("#signout")!.innerHTML = html`
@@ -12,7 +13,7 @@ export function renderLogout(user: User) {
       class="flex flex-col sm:2xl:flex-row items-center justify-center gap-6"
     >
       <a
-        href="/account/?uid=${user.uid}"
+        href="${accountUrl(user.uid)}"
         class="py-6 px-8 bg-cyan-600 rounded-full cursor-pointer flex flex-row justify-center items-center gap-2"
       >
         <svg viewBox="0 0 28 28" width="28" height="28">

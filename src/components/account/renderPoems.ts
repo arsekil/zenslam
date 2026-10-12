@@ -13,6 +13,7 @@ import z from "zod";
 import { db, auth } from "../../lib/firebase";
 import { html } from "../../lib/html";
 import formatDate from "../../lib/formatDate";
+import { poemUrl } from "../../lib/routes";
 import type { PoemDocument } from "../../types/PoemDocument";
 import renderErrors from "./renderErrors";
 
@@ -62,7 +63,7 @@ export default async function renderPoems(
           class="w-full max-h-16 flex flex-row justify-between items-center border border-gray-300 rounded-md px-4 py-2"
         >
           <a
-            href="/poem/?id=${entry.id}"
+            href="${poemUrl(entry.id, `profile:${auth.currentUser!.uid}`)}"
             class="w-full max-w-40 overflow-hidden text-ellipsis whitespace-nowrap text-2xl font-semibold no-underline hover:text-blue-800"
           >
             ${poem.title}
@@ -86,8 +87,4 @@ export default async function renderPoems(
       await renderErrors(isError, errorType, errorMessage);
     }
   }
-  // finally {
-  //   isError = false;
-  //   renderErrors();
-  // }
 }

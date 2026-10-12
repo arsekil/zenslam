@@ -139,7 +139,7 @@ export default async function renderForm() {
       document.querySelector("#edit")!.innerHTML = html`<p
         class="text-red-500 text-semibold text-2xl"
       >
-        Poem not found.
+        Zen not found.
       </p>`;
       return;
     }

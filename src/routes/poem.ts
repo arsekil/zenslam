@@ -9,7 +9,7 @@ import Underline from "@editorjs/underline";
 import { mdiFeather, mdiYinYang, mdiArrowLeft } from "@mdi/js";
 import { auth, db } from "../lib/firebase";
 import { html } from "../lib/html";
-import { routes } from "../lib/routes";
+import { editPoemUrl, routes } from "../lib/routes";
 import "../style.css";
 
 const params = new URLSearchParams(window.location.search);
@@ -122,7 +122,7 @@ function renderEditButton() {
     <svg viewBox="0 0 24 24" width="24" height="24">
       <path d="${mdiFeather}" />
     </svg>
-    <a href="/poem/edit/?id=${poemId}">Edit</a>
+    <a href="${editPoemUrl(poemId as string)}">Edit</a>
   `;
 
   document.querySelector<HTMLElement>("#edit")!.className =

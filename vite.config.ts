@@ -8,19 +8,21 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   build: {
     rollupOptions: {
+      // NOTE: these input keys must match the URL paths in src/lib/routes.ts.
+      // When adding a route, update both.
       input: {
-        main: resolve(import.meta.dirname, "index.html"),
-        cta: resolve(import.meta.dirname, "auth/cta/index.html"),
+        main: resolve(import.meta.dirname, "index.html"), // routes.main
+        cta: resolve(import.meta.dirname, "auth/cta/index.html"), // routes.cta
         passwordreset: resolve(
           import.meta.dirname,
           "auth/passwordreset/index.html",
-        ),
-        submission: resolve(import.meta.dirname, "submission/index.html"),
-        poem: resolve(import.meta.dirname, "poem/index.html"),
-        poems: resolve(import.meta.dirname, "poems/index.html"),
-        collection: resolve(import.meta.dirname, "collection/index.html"),
-        account: resolve(import.meta.dirname, "account/index.html"),
-        tags: resolve(import.meta.dirname, "tags/index.html"),
+        ), // routes.passwordReset
+        submission: resolve(import.meta.dirname, "submission/index.html"), // routes.submission
+        poem: resolve(import.meta.dirname, "poem/index.html"), //routes.poem
+        poems: resolve(import.meta.dirname, "poems/index.html"), //routes.poems
+        collection: resolve(import.meta.dirname, "collection/index.html"), // routes.collections
+        account: resolve(import.meta.dirname, "account/index.html"), // routes.account
+        tags: resolve(import.meta.dirname, "tags/index.html"), // routes.tags
       },
     },
   },
