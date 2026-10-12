@@ -33,7 +33,10 @@ export function editPoemUrl(poemId: string) {
   return `/poem/edit/?id=${encodeURIComponent(poemId)}`;
 }
 
-export function getBackTarget(from: string | null): { label: string; href: string } {
+export function getBackTarget(from: string | null): {
+  label: string;
+  href: string;
+} {
   if (!from) return { label: "Back", href: routes.account };
 
   const [kind, id] = from.split(":");
@@ -44,7 +47,9 @@ export function getBackTarget(from: string | null): { label: string; href: strin
     case "poems":
       return { label: "Back to poems", href: routes.poems };
     case "profile":
-      return { label: "Back to profile", href: accountUrl(id) };
+      return id
+        ? { label: "Back to profile", href: accountUrl(id) }
+        : { label: "Back", href: routes.account };
     case "collection":
       return { label: "Back to collection", href: collectionUrl(id) };
     default:
